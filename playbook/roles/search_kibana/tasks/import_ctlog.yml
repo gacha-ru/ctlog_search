@@ -1,0 +1,12 @@
+---
+- name: set import_ctlog.sh and config
+  template: >
+    src={{ item.name }}.j2
+    dest={{ ansible_env.HOME }}/{{ item.name }}
+    owner={{ ansible_env.USER }}
+    group={{ ansible_env.USER }}
+    mode={{ item.grant }}
+  with_items:
+    - { name: 'import_ctlog.sh', grant: '0755' }
+    - { name: 'account.conf', grant: '0600' }
+  tags: import_ctlog

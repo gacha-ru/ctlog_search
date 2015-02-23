@@ -1,0 +1,15 @@
+---
+- name: download kibana
+  get_url: dest=/tmp/kibana-{{ kibana_version }}.zip
+           url=https://download.elasticsearch.org/kibana/kibana/kibana-{{ kibana_version }}.zip
+  register: result
+
+- name: unarchive kibana
+  unarchive:
+    src=/tmp/kibana-{{ kibana_version }}.zip
+    dest=/usr/share/nginx/html/
+    copy=no
+    creates=/usr/share/nginx/html/kibana-{{ kibana_version }}
+
+- name: symlink kibana
+  file: src=/usr/share/nginx/html/kibana-{{ kibana_version }} dest=/usr/share/nginx/html/kibana state=link

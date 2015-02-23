@@ -1,0 +1,5 @@
+.vagrant
+ctlog/
+account.conf
+vars_main.yml
+playbook/roles/search_kibana/vars/main.yml

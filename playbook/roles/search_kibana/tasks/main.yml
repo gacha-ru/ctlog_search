@@ -1,0 +1,12 @@
+---
+
+- include: epel.yml
+
+- name: install the 'Development tools' package group
+  yum: name="@Development tools" state=present
+#
+- include: elasticsearch.yml
+- include: nginx.yml
+- include: kibana.yml
+- include: awscli.yml
+- include: import_ctlog.yml

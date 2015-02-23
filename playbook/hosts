@@ -1,0 +1,10 @@
+[vagrant]
+192.168.33.23
+
+[vagrant:vars]
+ACCOUNT = account01
+ACCOUNT_ID = AWS_ACCOUNT_ID
+REGION = ap-northeast-1
+AWS_ACCESS_KEY = ACCESS_KEY
+AWS_SECRET_KEY = SECRET_KEY
+CROUDTRAIL_S3_BUCKET = "{{ ACCOUNT }}-ctlog"

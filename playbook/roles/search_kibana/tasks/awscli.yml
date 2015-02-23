@@ -1,0 +1,24 @@
+---
+- name: Install awscli
+  pip: name=awscli
+
+- name: .aws folder
+  file: path=/home/{{ ansible_env.USER }}/.aws state=directory owner={{ ansible_env.USER }} group={{ ansible_env.USER }} mode=0755
+
+- name: set aws config and credentials
+  template: >
+    src={{ item }}.j2
+    dest=/home/{{ ansible_env.USER }}/.aws/{{ item }}
+    owner={{ ansible_env.USER }}
+    group={{ ansible_env.USER }}
+    mode=0600
+  with_items:
+    - config
+    - credentials
+  tags: awscli
+
+- name: download jq
+  get_url: dest=/usr/local/bin/jq
+           url=http://stedolan.github.io/jq/download/linux64/jq
+
+- file: path=/usr/local/bin/jq mode=0755

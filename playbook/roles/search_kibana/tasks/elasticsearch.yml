@@ -1,0 +1,78 @@
+---
+- name: elasticsearch repo
+  yum: name=https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-{{ elasticsearch_varsion }}.noarch.rpm
+  tags: elasticsearch
+
+- name: Install elasticsearch
+  yum: name={{item}} state=installed
+  with_items:
+    - java-1.7.0-openjdk
+    - elasticsearch
+    - python-setuptools
+    - libselinux-python
+  tags: elasticsearch
+  notify: restart elasticsearch
+
+- name: Install elasticsearch-plugin
+  shell: |
+    if [ ! -d /usr/share/elasticsearch/plugins/HQ ];then
+        /usr/share/elasticsearch/bin/plugin -install royrusso/elasticsearch-HQ
+    else
+        echo "HQ Already installed"
+    fi
+    if [ ! -d /usr/share/elasticsearch/plugins/head ];then
+        /usr/share/elasticsearch/bin/plugin -install mobz/elasticsearch-head
+    else
+        echo "head Already installed"
+    fi
+  changed_when: false
+  always_run: yes
+  tags: elasticsearch
+
+- easy_install: name=pip
+
+- name: Install curator
+  pip: name=elasticsearch-curator
+
+- name: set elasticsearch init
+  template: >
+     src=elasticsearch_init.j2
+     dest=/etc/init.d/elasticsearch
+     owner=root
+     group=root
+     mode=0755
+  tags: elasticsearch
+
+- name: set elasticsearch.yml init
+  template: >
+     src=elasticsearch.yml.j2
+     dest=/etc/elasticsearch/elasticsearch.yml
+     owner=root
+     group=root
+     mode=0644
+  tags: elasticsearch
+
+# elasticsearch start
+- service: name=elasticsearch state=started
+
+# index mapping
+- name: set index
+  shell: |
+    sleep 3s
+    curl -XPUT localhost:9200/_template/template_1 -d '
+    {
+      "template" : "cloudtrail*",
+      "mappings" : {
+        "{{ ACCOUNT }}": {
+          "properties": {
+            "awsRegion" : { "type" : "string", "index" : "not_analyzed" },
+            "userIdentity.userName" : { "type" : "string", "index" : "not_analyzed" },
+            "eventSource" : { "type" : "string", "index" : "not_analyzed" },
+            "userAgent" : { "type" : "string", "index" : "not_analyzed" }
+          }
+        }
+      }
+    }'
+  changed_when: false
+  always_run: yes
+  tags: elasticsearch
